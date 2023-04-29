@@ -1,89 +1,89 @@
-#ifndef LISTS_H
-#define LISTS_H
-
-#include <string.h>
-#include <stdlib.h>
+#include "lists.h"
 #include <stdio.h>
 
+size_t looped_listint_len(const listint_t *head);
+size_t print_listint_safe(const listint_t *head);
+
 /**
- * struct listint_s - singly linked list
- * @n: integer
- * @next: points to the next node
+ * looped_listint_len - Counts the number of unique nodes
+ * in a looped listint_t linked list.
+ * @head: A pointer to the head of the listint_t to check.
  *
- * Description: singly linked list node structure
- *
+ * Return: If the list is not looped - 0.
+ * Otherwise - the number of unique nodes in the list.
  */
-typedef struct listint_s
+size_t looped_listint_len(const listint_t *head)
 {
-    int n;
-    struct listint_s *next;
-} listint_t;
+ const listint_t *tortoise, *hare;
+ size_t nodes = 1;
 
-size_t print_listint(const listint_t *h);
-size_t listint_len(const listint_t *h);
-listint_t *add_nodeint(listint_t **head, const int n);
-listint_t *add_nodeint_end(listint_t **head, const int n);
-void free_listint(listint_t *head);
-void free_listint2(listint_t **head);
-int pop_listint(listint_t **head);
-listint_t *get_nodeint_at_index(listint_t *head, unsigned int index);
-int sum_listint(listint_t *head);
-listint_t *insert_nodeint_at_index(listint_t **head, unsigned int idx, int n);
+ if (head == NULL || head->next == NULL)
+ return (0);
 
-#endif
+ tortoise = head->next;
+ hare = (head->next)->next;
 
-#include <stdio.h>
+ while (hare)
+ {
+ if (tortoise == hare)
+ {
+ tortoise = head;
+ while (tortoise != hare)
+ {
+ nodes++;
+ tortoise = tortoise->next;
+ hare = hare->next;
+ }
+
+ tortoise = tortoise->next;
+ while (tortoise != hare)
+ {
+ nodes++;
+ tortoise = tortoise->next;
+ }
+
+ return (nodes);
+ }
+
+ tortoise = tortoise->next;
+ hare = (hare->next)->next;
+ }
+
+ return (0);
+}
 
 /**
-* *insert_nodeint_at_index - insert node at a given position
-*
-* @head: head element of the list
-*
-* @idx: index of the list to insert a new node
-*
-* @n: integer n
-*
-* Return: New node
-*/
-listint_t *insert_nodeint_at_index(listint_t **head, unsigned int idx, int n)
+ * print_listint_safe - Prints a listint_t list safely.
+ * @head: A pointer to the head of the listint_t list.
+ *
+ * Return: The number of nodes in the list.
+ */
+size_t print_listint_safe(const listint_t *head)
 {
-        unsigned int a = 0;
-        listint_t *new_node, *prev_node, *next_node;
+ size_t nodes, index = 0;
 
-        new_node = malloc(sizeof(listint_t));
+ nodes = looped_listint_len(head);
 
-        if (idx == 0 || *head == NULL)
-        {
-                new_node->n = n;
-                new_node->next = *head;
-                *head = new_node;
-                return (new_node);
-        }
-        if (new_node == NULL)
-                return (NULL);
+ if (nodes == 0)
+ {
+ for (; head != NULL; nodes++)
+ {
+ printf("[%p] %d\n", (void *)head, head->n);
+ head = head->next;
+ }
+ }
 
-        prev_node = *head;
+ else
+ {
+ for (index = 0; index < nodes; index++)
+ {
+ printf("[%p] %d\n", (void *)head, head->n);
+ head = head->next;
+ }
 
-        while (*head != NULL && a < (idx - 1))
-        {
-                prev_node = prev_node->next;
-                a++;
-        }
+ printf("-> [%p] %d\n", (void *)head, head->n);
+ }
 
-        next_node = prev_node->next;
-        prev_node->next = new_node;
-        new_node->n = n;
-        new_node->next = next_node;
-        return (new_node);
-
-        if (a < idx && *head == NULL)
-                return (NULL);
+ return (nodes);
 }
-int main(void)
-{
-    listint_t *head;
 
-    head = NULL;
-    insert_nodeint_at_index(&head, 5, 4096);
-    return (0);
-}
